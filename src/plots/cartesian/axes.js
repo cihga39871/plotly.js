@@ -77,6 +77,7 @@ axes.getFromId = axisIds.getFromId;
 axes.getFromTrace = axisIds.getFromTrace;
 
 var autorange = require('./autorange');
+const { last } = require('lodash');
 axes.getAutoRange = autorange.getAutoRange;
 axes.findExtremes = autorange.findExtremes;
 
@@ -1364,7 +1365,27 @@ function arrayTicks(ax, majorOnly) {
 
     ticksOut = filterRangeBreaks(ax, ticksOut);
 
-    return ticksOut;
+    // Clasnip's Edit Here
+    // filter ticks by not overlapping with other tick labels
+    var fontSize = ax.tickfont ? ax.tickfont.size : 12;
+    var needToFilter = (ax._length / ticksOut.length) < fontSize * 0.9;
+    if (!needToFilter) {
+        // if we don't need to filter, just return the ticks
+        return ticksOut;
+    }
+    var ticksOutFinal = [];
+    var eachLabelHeight = 1/ticksOut.length;
+    var lastLocation = -99;
+    for(var i = 0; i < ticksOut.length; i++) {
+        var tick = ticksOut[i];
+        var thisLocation = i * eachLabelHeight;
+        var drawBool = (thisLocation - lastLocation) * ax._length > fontSize * 0.9;
+        if(drawBool) {
+            lastLocation = thisLocation;
+            ticksOutFinal.push(tick);
+        }
+    }
+    return ticksOutFinal;
 }
 
 var roundBase10 = [2, 5, 10];
