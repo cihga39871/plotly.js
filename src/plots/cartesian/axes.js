@@ -1367,8 +1367,8 @@ function arrayTicks(ax, majorOnly) {
 
     // Clasnip's Edit Here
     // filter ticks by not overlapping with other tick labels
-    var fontSize = ax.tickfont ? ax.tickfont.size : 12;
-    var needToFilter = (ax._length / ticksOut.length) < fontSize * 0.9;
+    var fontSize = (ax.tickfont ? ax.tickfont.size : 12) * 0.9;
+    var needToFilter = (ax._length / ticksOut.length) < fontSize;
     if (!needToFilter) {
         // if we don't need to filter, just return the ticks
         return ticksOut;
@@ -1379,10 +1379,10 @@ function arrayTicks(ax, majorOnly) {
     for(var i = 0; i < ticksOut.length; i++) {
         var tick = ticksOut[i];
         var thisLocation = i * eachLabelHeight;
-        var drawBool = (thisLocation - lastLocation) * ax._length > fontSize * 0.9;
+        var drawBool = (thisLocation - lastLocation) * ax._length > fontSize;
         if(drawBool) {
-            lastLocation = thisLocation;
             ticksOutFinal.push(tick);
+            lastLocation = thisLocation;
         }
     }
     return ticksOutFinal;
