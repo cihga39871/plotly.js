@@ -1321,14 +1321,14 @@ function syncTicks(ax) {
 }
 
 function arrayTicks(ax, majorOnly) {
-    var rng = Lib.simpleMap(ax.range, ax.r2l);
-    var exRng = expandRange(rng);
-    var tickMin = Math.min(exRng[0], exRng[1]);
-    var tickMax = Math.max(exRng[0], exRng[1]);
+    const rng = Lib.simpleMap(ax.range, ax.r2l);
+    const exRng = expandRange(rng);
+    const tickMin = Math.min(exRng[0], exRng[1]);
+    const tickMax = Math.max(exRng[0], exRng[1]);
 
     // make sure showing ticks doesn't accidentally add new categories
     // TODO multicategory, if we allow ticktext / tickvals
-    var tickVal2l = ax.type === 'category' ? ax.d2l_noadd : ax.d2l;
+    const tickVal2l = ax.type === 'category' ? ax.d2l_noadd : ax.d2l;
 
     // array ticks on log axes always show the full number
     // (if no explicit ticktext overrides it)
@@ -1340,7 +1340,7 @@ function arrayTicks(ax, majorOnly) {
     for(var isMinor = 0; isMinor <= 1; isMinor++) {
         if((majorOnly !== undefined) && ((majorOnly && isMinor) || (majorOnly === false && !isMinor))) continue;
         if(isMinor && !ax.minor) continue;
-        var vals = !isMinor ? ax.tickvals : ax.minor.tickvals;
+        const vals = !isMinor ? ax.tickvals : ax.minor.tickvals;
         var text = !isMinor ? ax.ticktext : [];
         if(!vals) continue;
 
@@ -1350,9 +1350,9 @@ function arrayTicks(ax, majorOnly) {
         if(!Lib.isArrayOrTypedArray(text)) text = [];
 
         for(var i = 0; i < vals.length; i++) {
-            var vali = tickVal2l(vals[i]);
+            const vali = tickVal2l(vals[i]);
             if(vali > tickMin && vali < tickMax) {
-                var obj = axes.tickText(ax, vali, false, String(text[i]));
+                const obj = axes.tickText(ax, vali, false, String(text[i]));
                 if(isMinor) {
                     obj.minor = true;
                     obj.text = '';
@@ -1367,25 +1367,25 @@ function arrayTicks(ax, majorOnly) {
 
     // Clasnip's Edit Here
     // filter ticks by not overlapping with other tick labels
-    var fontSize = (ax.tickfont ? ax.tickfont.size : 12) * 0.9;
-    var needToFilter = (ax._length / ticksOut.length) < fontSize;
+    const fontPortion = (ax.tickfont ? ax.tickfont.size : 12) * 0.9 / ax._length;
+    const needToFilter = (1 / ticksOut.length) < fontPortion;
     if (!needToFilter) {
         // if we don't need to filter, just return the ticks
         return ticksOut;
     }
-    var ticksOutFinal = [];
-    var eachLabelHeight = 1/ticksOut.length;
+    const eachLabelHeight = 1/ticksOut.length;
     var lastLocation = -99;
-    for(var i = 0; i < ticksOut.length; i++) {
-        var tick = ticksOut[i];
-        var thisLocation = i * eachLabelHeight;
-        var drawBool = (thisLocation - lastLocation) * ax._length > fontSize;
+    ticksOut = ticksOut.filter(function(tick, i) {
+        const thisLocation = i * eachLabelHeight;
+        const drawBool = (thisLocation - lastLocation) > fontPortion;
         if(drawBool) {
-            ticksOutFinal.push(tick);
             lastLocation = thisLocation;
+            return true
+        } else {
+            return false
         }
-    }
-    return ticksOutFinal;
+    });
+    return ticksOut;
 }
 
 var roundBase10 = [2, 5, 10];
