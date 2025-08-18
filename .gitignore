@@ -4,6 +4,7 @@ build/*
 !build/plotcss.js
 !build/README.md
 
+dist/*
 dist/*.LICENSE.txt
 dist/*.css
 
