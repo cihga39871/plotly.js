@@ -1366,7 +1366,8 @@ function arrayTicks(ax, majorOnly) {
     ticksOut = filterRangeBreaks(ax, ticksOut);
 
     // Clasnip's Edit Here
-    // filter ticks by not overlapping with other tick labels
+    // Filter ticks by not overlapping with other tick labels, or
+    // Always show a tick if `tick.text` contains regex `/color:#000000|NOHIDE/`.
     const fontPortion = (ax.tickfont ? ax.tickfont.size : 12) * 0.9 / ax._length;
     const needToFilter = (1 / ticksOut.length) < fontPortion;
     if (!needToFilter) {
@@ -1375,16 +1376,19 @@ function arrayTicks(ax, majorOnly) {
     }
     const eachLabelHeight = 1/ticksOut.length;
     var lastLocation = -99;
+    const textRegex = /color:#000000|NOHIDE/;
     ticksOut = ticksOut.filter(function(tick, i) {
         const thisLocation = i * eachLabelHeight;
-        const drawBool = (thisLocation - lastLocation) > fontPortion;
-        if(drawBool) {
+        const drawBoolLocation = (thisLocation - lastLocation) > fontPortion;
+        if(drawBoolLocation) {
             lastLocation = thisLocation;
             return true
         } else {
-            return false
+            const drawBoolText = textRegex.test(tick.text)
+            return drawBoolText
         }
     });
+    // console.log(ticksOut)
     return ticksOut;
 }
 
